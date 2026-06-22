@@ -47,7 +47,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     try {
       // Menggunakan IPv4 Address laptop Anda agar bisa diakses dari HP
-      const API_URL = 'http://10.60.80.72:5000/api/analyze-text'; 
+      const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/analyze-text'; 
       
       const response = await axios.post(API_URL, {
         text: text,

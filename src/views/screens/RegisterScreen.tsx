@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const API_URL = 'http://10.20.224.88:5000/api/register';
+const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/register';
 
 export default function RegisterScreen({ navigation }: any) {
   const [name, setName] = useState('');

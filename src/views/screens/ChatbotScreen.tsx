@@ -6,7 +6,7 @@ import { useChatStore } from '../../viewmodels/useChatStore';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 // URL backend untuk mencari psikolog
-const API_URL = 'http://10.20.224.88:5000/api';
+const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);

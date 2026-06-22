@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 // Sesuaikan dengan IP address backend Anda, misalnya 192.168.1.5:5000
-const API_URL = 'http://10.20.224.88:5000/api/login'; 
+const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/login'; 
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');

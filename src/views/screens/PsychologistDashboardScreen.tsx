@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 // Sesuaikan dengan IP address backend Anda
-const API_URL = 'http://10.20.224.88:5000/api/psychologist'; 
+const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/psychologist'; 
 
 export default function PsychologistDashboardScreen({ navigation }: any) {
   const user = useAuthStore((state) => state.user);

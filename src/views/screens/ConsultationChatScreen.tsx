@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
-const API_URL = 'http://10.20.224.88:5000/api/consultation'; 
+const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/consultation'; 
 
 export default function ConsultationChatScreen({ route, navigation }: any) {
   const { sessionId, partnerName } = route.params;
