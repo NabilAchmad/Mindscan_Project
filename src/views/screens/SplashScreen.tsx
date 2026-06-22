@@ -1,14 +1,21 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image } from 'react-native';
+import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 export default function SplashScreen({ navigation }: any) {
+  const hasSeenOnboarding = useAuthStore((state) => state.hasSeenOnboarding);
+
   useEffect(() => {
-    // Navigate to Onboarding after 2.5 seconds
+    // Navigate after 2.5 seconds based on onboarding status
     const timer = setTimeout(() => {
-      navigation.replace('Onboarding');
+      if (hasSeenOnboarding) {
+        navigation.replace('Login');
+      } else {
+        navigation.replace('Onboarding');
+      }
     }, 2500);
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, [navigation, hasSeenOnboarding]);
 
   return (
     <View className="flex-1 bg-blue-600 justify-center items-center px-6">

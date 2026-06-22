@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 const ONBOARDING_DATA = [
   {
     title: 'Analisis Teks',
     description: 'Ceritakan perasaan Anda secara bebas. MindScan akan memahami sentimen Anda.',
-    icon: '📝',
+    icon: '💬',
   },
   {
     title: 'Deteksi Ekspresi Wajah',
@@ -21,18 +22,24 @@ const ONBOARDING_DATA = [
   {
     title: 'Bantuan Profesional',
     description: 'Hubungkan dengan psikolog profesional kapan pun Anda butuh.',
-    icon: '🤝',
+    icon: '👨‍⚕️',
   },
 ];
 
 export default function OnboardingScreen({ navigation }: any) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const setHasSeenOnboarding = useAuthStore((state) => state.setHasSeenOnboarding);
+
+  const handleComplete = () => {
+    setHasSeenOnboarding(true);
+    navigation.replace('Login');
+  };
 
   const handleNext = () => {
     if (currentIndex < ONBOARDING_DATA.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      navigation.replace('Login');
+      handleComplete();
     }
   };
 
@@ -40,7 +47,7 @@ export default function OnboardingScreen({ navigation }: any) {
     <SafeAreaView className="flex-1 bg-white justify-between pb-10 pt-10">
       {/* Skip Button */}
       <View className="px-6 items-end">
-        <TouchableOpacity onPress={() => navigation.replace('Login')}>
+        <TouchableOpacity onPress={handleComplete}>
           <Text className="text-gray-500 font-medium">Lewati</Text>
         </TouchableOpacity>
       </View>
