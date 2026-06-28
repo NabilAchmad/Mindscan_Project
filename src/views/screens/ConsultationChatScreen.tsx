@@ -86,7 +86,8 @@ export default function ConsultationChatScreen({ route, navigation }: any) {
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top', 'bottom']}>
       <KeyboardAvoidingView 
         className="flex-1" 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'} 
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         {/* Header */}
         <View className="bg-white px-4 py-3 shadow-sm z-10 flex-row items-center border-b border-gray-100">

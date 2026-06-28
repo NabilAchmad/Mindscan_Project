@@ -26,7 +26,7 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
       const response = await fetch(`${API_BASE}/psychologist/assessments`);
       const data = await response.json();
       if (data.status === 'success') {
-        setSessions(data.sessions);
+        setSessions(data.data || []);
       }
     } catch (error) {
       console.error("Error fetching sessions", error);
@@ -46,7 +46,16 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
           action: action
         })
       });
-      const data = await response.json();
+
+      const textResponse = await response.text();
+      let data;
+      try {
+          data = JSON.parse(textResponse);
+      } catch(e) {
+          console.error("Not a JSON response:", textResponse);
+          Alert.alert("Error", "Gagal mengirim aksi: Server error.");
+          return;
+      }
       
       if (data.status === 'success') {
         if (action === 'lanjut') {
@@ -78,8 +87,8 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
   const filteredSessions = sessions.filter(s => filterLevel === 'Semua' || s.anxiety_level === filterLevel);
 
   const renderSession = ({ item }: { item: any }) => {
-    const isHandledByOther = item.handled_by !== null && item.handled_by !== user?.id;
-    const isHandledByMe = item.handled_by === user?.id;
+    const isHandledByOther = item.handled_by !== null && item.handled_by !== user?.name;
+    const isHandledByMe = item.handled_by === user?.name;
 
     return (
       <View className="bg-white p-4 rounded-xl mb-4 border border-gray-100 shadow-sm">

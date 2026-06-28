@@ -17,6 +17,7 @@ interface ChatState {
   addMessage: (text: string, sender: 'user' | 'bot') => void;
   startSession: (userId: string | number) => Promise<void>;
   sendMessageToBot: (text: string) => Promise<void>;
+  endSession: () => Promise<void>;
   resetSession: () => void;
 }
 
@@ -82,6 +83,30 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       console.error("Error calling backend:", error);
       addMessage('Maaf, sistem sedang mengalami gangguan koneksi.', 'bot');
+    } finally {
+      set({ isTyping: false });
+    }
+  },
+
+  endSession: async () => {
+    const { sessionId, addMessage } = get();
+    if (!sessionId) return;
+    
+    set({ isTyping: true });
+    try {
+      const response = await axios.post(`${API_BASE}/chatbot/end`, {
+        session_id: sessionId
+      });
+      const data = response.data;
+      if (data.status === 'success') {
+        set({ sessionStatus: 'completed', finalSentiment: data.final_sentiment });
+        if (data.bot_reply) {
+          addMessage(data.bot_reply, 'bot');
+        }
+      }
+    } catch (error) {
+      console.error("Error ending session:", error);
+      set({ sessionStatus: 'completed' });
     } finally {
       set({ isTyping: false });
     }

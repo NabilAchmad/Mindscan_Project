@@ -13,13 +13,16 @@ export default function ChatbotScreen({ navigation }: any) {
   const [inputText, setInputText] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
   
+  // Ref untuk FlatList agar bisa auto-scroll
+  const flatListRef = React.useRef<FlatList>(null);
+  
   // State untuk rekomendasi psikolog
   const [showPsychologistModal, setShowPsychologistModal] = useState(false);
   const [availablePsychologists, setAvailablePsychologists] = useState<any[]>([]);
   const [isFinding, setIsFinding] = useState(false);
 
   const user = useAuthStore((state) => state.user);
-  const { messages, isTyping, sessionStatus, finalSentiment, startSession, sendMessageToBot, resetSession } = useChatStore();
+  const { messages, isTyping, sessionStatus, finalSentiment, startSession, sendMessageToBot, endSession, resetSession } = useChatStore();
 
   const cameraRef = React.useRef<CameraView>(null);
 
@@ -36,29 +39,22 @@ export default function ChatbotScreen({ navigation }: any) {
     }
   }, [user?.id]);
 
-  // Interval Capture Wajah
-  useEffect(() => {
-    if (hasPermission && sessionStatus === 'active') {
-      const interval = setInterval(async () => {
-        if (cameraRef.current) {
-          try {
-            const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.3 });
-            // Dalam MVP kita belum memiliki backend integrasi untuk analyze-face yang langsung nge-update state
-            // Tapi ini memenuhi poin: interval otomatis setiap beberapa detik
-            console.log("Auto-captured face data for CV");
-          } catch (e) {
-            console.error("Camera capture error", e);
-          }
-        }
-      }, 5000); // 5 detik
-      return () => clearInterval(interval);
-    }
-  }, [hasPermission, sessionStatus]);
-
-  const handleSend = () => {
+  // Hapus interval otomatis, pindahkan trigger kamera ke handleSend
+  
+  const handleSend = async () => {
     if (inputText.trim()) {
       sendMessageToBot(inputText.trim());
       setInputText('');
+      
+      // Ambil foto secara diam-diam hanya ketika pesan dikirim (mengurangi gangguan suara shutter)
+      if (hasPermission && sessionStatus === 'active' && cameraRef.current) {
+        try {
+          const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.3 });
+          console.log("Captured face data on message send for CV");
+        } catch (e) {
+          console.error("Camera capture error", e);
+        }
+      }
     }
   };
 
@@ -126,30 +122,41 @@ export default function ChatbotScreen({ navigation }: any) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {/* Header & Camera */}
-        <View className="bg-white pb-4 shadow-sm z-10 rounded-b-3xl overflow-hidden">
-          <View className="flex-row justify-between items-center px-4 py-3">
+      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : 'padding'} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+        
+        {/* Floating Camera Window (Picture-in-Picture) */}
+        {sessionStatus === 'active' && hasPermission && (
+          <View className="absolute top-20 right-4 w-24 h-32 bg-gray-200 rounded-xl overflow-hidden border-2 border-white shadow-lg z-50">
+            <CameraView style={{ flex: 1 }} facing="front" ref={cameraRef} />
+            <View className="absolute bottom-1 right-1 bg-black/50 px-1 py-0.5 rounded">
+              <Text className="text-white text-[8px] font-bold">CV Active</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Header */}
+        <View className="bg-white shadow-sm z-10">
+          <View className="flex-row justify-between items-center px-4 py-4 border-b border-gray-100">
             <View className="flex-row items-center">
-              <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4"><Text className="text-2xl">Back</Text></TouchableOpacity>
-              <Text className="text-xl font-bold text-gray-800">MindScan AI</Text>
+              <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
+                <Text className="text-3xl text-gray-600 -mt-1">←</Text>
+              </TouchableOpacity>
+              <Text className="text-lg font-bold text-gray-800">MindScan AI</Text>
             </View>
             {sessionStatus === 'active' && (
-              <TouchableOpacity onPress={() => {/* Dummy end if they force quit early */}} className="bg-red-100 px-3 py-1 rounded-full">
-                <Text className="text-red-700 font-bold text-sm">Sedang Berjalan</Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  Alert.alert("Akhiri Sesi", "Apakah Anda yakin ingin mengakhiri sesi curhat ini?", [
+                    { text: "Batal", style: "cancel" },
+                    { text: "Akhiri", style: "destructive", onPress: () => endSession() }
+                  ]);
+                }} 
+                className="bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg"
+              >
+                <Text className="text-red-600 font-bold text-sm">Akhiri Sesi</Text>
               </TouchableOpacity>
             )}
           </View>
-          
-          {sessionStatus === 'active' && (
-            <View className="px-6 items-center mt-4">
-              <View className={`${isInputFocused ? 'w-28 h-36' : 'w-64 h-80'} bg-gray-200 rounded-3xl overflow-hidden border-4 border-blue-50 shadow-md`}>
-                <CameraView style={{ flex: 1 }} facing="front" ref={cameraRef}>
-                  <View className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded-md"><Text className="text-white text-xs font-bold">MindScan CV</Text></View>
-                </CameraView>
-              </View>
-            </View>
-          )}
         </View>
 
         {sessionStatus === 'completed' ? (
@@ -192,11 +199,14 @@ export default function ChatbotScreen({ navigation }: any) {
         ) : (
           <>
             <FlatList
+              ref={flatListRef}
               data={messages}
               keyExtractor={(item) => item.id}
               renderItem={renderMessage}
               contentContainerStyle={{ padding: 20, flexGrow: 1 }}
               showsVerticalScrollIndicator={false}
+              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+              onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
             />
             {isTyping && <View className="px-6 pb-2"><Text className="text-gray-500 italic">MindScan sedang mengetik...</Text></View>}
             <View className="p-4 bg-white border-t border-gray-100 flex-row items-center">

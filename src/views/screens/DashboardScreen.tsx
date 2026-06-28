@@ -22,10 +22,21 @@ export default function DashboardScreen({ navigation }: any) {
     if (!user) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/student/history/${user.id}`);
-      const data = await response.json();
-      if (data.status === 'success') {
-        setHistory(data.data);
+      const response = await fetch(`${API_BASE}/student/history/${user.id}`, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+      
+      const textResponse = await response.text();
+      try {
+        const data = JSON.parse(textResponse);
+        if (data.status === 'success') {
+          setHistory(data.data);
+        }
+      } catch (parseError) {
+        console.error("Dashboard API Error (Not JSON):", textResponse.substring(0, 100));
+        // Abaikan data jika bukan JSON (contoh: ngrok expired HTML)
       }
     } catch (error) {
       console.error(error);
@@ -44,16 +55,42 @@ export default function DashboardScreen({ navigation }: any) {
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}>
         {/* Header */}
-        <View className="bg-blue-600 px-6 pt-6 pb-12 rounded-b-[40px]">
-          <View className="flex-row justify-between items-center">
+        <View className="bg-white px-6 py-8 rounded-b-3xl shadow-sm mb-6 border-b border-gray-100">
+          <View className="flex-row justify-between items-start mb-6">
             <View>
-              <Text className="text-blue-100 text-lg">Selamat pagi,</Text>
-              <Text className="text-white text-2xl font-bold">{user?.name || 'Mahasiswa'}</Text>
+              <Text className="text-gray-500 text-sm mb-1">Selamat datang kembali,</Text>
+              <Text className="text-2xl font-black text-gray-800 tracking-tight">{user?.name}</Text>
             </View>
-            <TouchableOpacity onPress={handleLogout} className="bg-white/20 p-2 rounded-full">
-              <Text className="text-white">Keluar</Text>
+            <TouchableOpacity onPress={handleLogout} className="bg-red-50 px-3 py-2 rounded-xl border border-red-100">
+              <Text className="text-red-600 font-bold text-xs">Keluar</Text>
             </TouchableOpacity>
           </View>
+          
+          <TouchableOpacity 
+            className="w-full bg-blue-600 rounded-2xl p-4 flex-row items-center justify-between shadow-sm"
+            onPress={() => navigation.navigate('Chatbot')}
+          >
+            <View className="flex-1">
+              <Text className="text-white font-black text-xl mb-1">Mulai Curhat</Text>
+              <Text className="text-blue-100 text-sm">Ceritakan perasaanmu hari ini dengan AI kami</Text>
+            </View>
+            <View className="bg-white/20 p-3 rounded-full ml-4">
+              <Text className="text-2xl">🤖</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            className="w-full bg-white border border-blue-200 rounded-2xl p-4 flex-row items-center justify-between shadow-sm mt-3"
+            onPress={() => navigation.navigate('StudentConsultationList')}
+          >
+            <View className="flex-1">
+              <Text className="text-blue-700 font-bold text-lg mb-1">Riwayat Chat Psikolog</Text>
+              <Text className="text-gray-500 text-xs">Lanjutkan sesi obrolan dengan psikolog Anda</Text>
+            </View>
+            <View className="bg-blue-50 p-3 rounded-full ml-4">
+              <Text className="text-xl">💬</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {isLoading ? (
