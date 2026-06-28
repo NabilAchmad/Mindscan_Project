@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, CameraView } from 'expo-camera';
 import { useChatStore } from '../../viewmodels/useChatStore';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
+import { Ionicons } from '@expo/vector-icons';
 
 // URL backend untuk mencari psikolog
 const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api';
@@ -49,7 +50,7 @@ export default function ChatbotScreen({ navigation }: any) {
       // Ambil foto secara diam-diam hanya ketika pesan dikirim (mengurangi gangguan suara shutter)
       if (hasPermission && sessionStatus === 'active' && cameraRef.current) {
         try {
-          const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.3 });
+          const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.3, shutterSound: false });
           console.log("Captured face data on message send for CV");
         } catch (e) {
           console.error("Camera capture error", e);
@@ -139,7 +140,7 @@ export default function ChatbotScreen({ navigation }: any) {
           <View className="flex-row justify-between items-center px-4 py-4 border-b border-gray-100">
             <View className="flex-row items-center">
               <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
-                <Text className="text-3xl text-gray-600 -mt-1">←</Text>
+                <Ionicons name="arrow-back" size={28} color="#4B5563" />
               </TouchableOpacity>
               <Text className="text-lg font-bold text-gray-800">MindScan AI</Text>
             </View>

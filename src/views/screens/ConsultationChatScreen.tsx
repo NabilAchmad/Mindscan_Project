@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
+import { Ionicons } from '@expo/vector-icons';
 
 const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/consultation'; 
 
@@ -92,7 +93,7 @@ export default function ConsultationChatScreen({ route, navigation }: any) {
         {/* Header */}
         <View className="bg-white px-4 py-3 shadow-sm z-10 flex-row items-center border-b border-gray-100">
           <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4 p-2 bg-gray-100 rounded-full">
-            <Text className="text-xl">🔙</Text>
+            <Ionicons name="arrow-back" size={24} color="#374151" />
           </TouchableOpacity>
           <View>
             <Text className="text-sm text-gray-500">Konsultasi dengan</Text>

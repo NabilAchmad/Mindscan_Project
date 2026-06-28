@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 import { useIsFocused } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const API_BASE = 'https://griminess-unblended-enslave.ngrok-free.dev/api'; 
 
@@ -69,7 +70,7 @@ export default function StudentConsultationListScreen({ navigation }: any) {
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="bg-white px-6 py-4 shadow-sm flex-row items-center border-b border-gray-100 z-10">
         <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4">
-          <Text className="text-3xl text-gray-600 -mt-1">←</Text>
+          <Ionicons name="arrow-back" size={28} color="#4B5563" />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-gray-800">Riwayat Chat Psikolog</Text>
       </View>
