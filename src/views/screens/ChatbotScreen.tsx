@@ -7,7 +7,7 @@ import { useAuthStore } from '../../viewmodels/useAuthStore';
 import { Ionicons } from '@expo/vector-icons';
 
 // URL backend untuk mencari psikolog
-const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api';
+const API_URL = 'https://nabilnih1302-mindscan-api.hf.space/api';
 
 export default function ChatbotScreen({ navigation }: any) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -65,7 +65,7 @@ export default function ChatbotScreen({ navigation }: any) {
     setIsFinding(true);
     setShowPsychologistModal(true);
     try {
-      const response = await fetch(`${API_URL}/psychologists/available`);
+      const response = await fetch(`${API_URL}/psychologists/available`, { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } });
       const data = await response.json();
       if (data.status === 'success') {
         setAvailablePsychologists(data.data);
@@ -83,7 +83,8 @@ export default function ChatbotScreen({ navigation }: any) {
     try {
       const response = await fetch(`${API_URL}/consultation/start`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'X-API-Key': 'mindscan_secret_key_2026', 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mahasiswa_id: user.id,
           psikolog_id: psikologId,

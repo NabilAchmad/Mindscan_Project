@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 // Sesuaikan dengan IP address backend Anda, misalnya 192.168.1.5:5000
-const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/login'; 
+const API_URL = 'https://nabilnih1302-mindscan-api.hf.space/api/login'; 
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -23,6 +23,7 @@ export default function LoginScreen({ navigation }: any) {
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
+          'X-API-Key': 'mindscan_secret_key_2026',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),

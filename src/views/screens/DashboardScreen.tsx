@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 import { useIsFocused } from '@react-navigation/native';
 
-const API_BASE = 'https://griminess-unblended-enslave.ngrok-free.dev/api';
+const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api';
 
 export default function DashboardScreen({ navigation }: any) {
   const user = useAuthStore((state) => state.user);
@@ -24,6 +24,7 @@ export default function DashboardScreen({ navigation }: any) {
     try {
       const response = await fetch(`${API_BASE}/student/history/${user.id}`, {
         headers: {
+          'X-API-Key': 'mindscan_secret_key_2026',
           'ngrok-skip-browser-warning': 'true'
         }
       });
@@ -100,24 +101,17 @@ export default function DashboardScreen({ navigation }: any) {
         ) : history.length === 0 ? (
           <View className="flex-1 px-6 mt-10 items-center justify-center">
             <View className="bg-blue-50 w-40 h-40 rounded-full items-center justify-center mb-6">
-              <Text className="text-6xl">📝</Text>
+              <Text className="text-6xl">🤖</Text>
             </View>
-            <Text className="text-2xl font-bold text-gray-800 mb-2 text-center">Belum Ada Riwayat Tes</Text>
+            <Text className="text-2xl font-bold text-gray-800 mb-2 text-center">Belum Ada Riwayat Curhat AI</Text>
             <Text className="text-gray-500 text-center mb-10 px-4 leading-6">
-              Anda belum pernah melakukan asesmen kesehatan mental. Mulai asesmen pertama Anda sekarang untuk mengetahui tingkat stres dan kecemasan Anda.
+              Anda belum pernah melakukan sesi curhat dengan AI kami. Tekan tombol "Mulai Curhat" di atas untuk memulai sesi pertama Anda.
             </Text>
-
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('Chatbot')}
-              className="bg-blue-600 w-full py-4 rounded-2xl items-center shadow-lg shadow-blue-300"
-            >
-              <Text className="text-white font-bold text-lg">Mulai Asesmen Sekarang</Text>
-            </TouchableOpacity>
           </View>
         ) : (
           <View className="px-6 mt-6 flex-1">
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-bold text-gray-800">Riwayat Asesmen</Text>
+              <Text className="text-xl font-bold text-gray-800">Riwayat Sesi AI Anda</Text>
             </View>
             
             {history.map((item) => (
@@ -137,13 +131,6 @@ export default function DashboardScreen({ navigation }: any) {
                 </View>
               </View>
             ))}
-
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('Chatbot')}
-              className="bg-blue-600 w-full py-4 rounded-2xl items-center shadow-lg shadow-blue-300 mt-6"
-            >
-              <Text className="text-white font-bold text-lg">Mulai Asesmen Baru</Text>
-            </TouchableOpacity>
           </View>
         )}
       </ScrollView>

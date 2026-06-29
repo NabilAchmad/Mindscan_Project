@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, Scrol
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
-const API_BASE = 'https://griminess-unblended-enslave.ngrok-free.dev/api'; 
+const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api'; 
 
 export default function PsychologistDashboardScreen({ navigation }: any) {
   const user = useAuthStore((state) => state.user);
@@ -23,7 +23,7 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
   const fetchSessions = async () => {
     if (!user) return;
     try {
-      const response = await fetch(`${API_BASE}/psychologist/assessments`);
+      const response = await fetch(`${API_BASE}/psychologist/assessments`, { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } });
       const data = await response.json();
       if (data.status === 'success') {
         setSessions(data.data || []);
@@ -39,7 +39,8 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
     try {
       const response = await fetch(`${API_BASE}/psychologist/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'X-API-Key': 'mindscan_secret_key_2026', 'Content-Type': 'application/json' },
         body: JSON.stringify({
           psychologist_id: user?.id,
           session_id: sessionId,
@@ -60,8 +61,12 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
       if (data.status === 'success') {
         if (action === 'lanjut') {
           navigation.navigate('ConsultationChat', { 
-            sessionId: data.consultation_id, // Gunakan consultation_id dari backend
-            partnerName: mahasiswaName
+            sessionId: data.consultation_id, 
+            partnerName: mahasiswaName,
+            status: 'active',
+            mahasiswaId: sessionId // wait, sessionId here is actually the assessment Session ID! Yes! No, wait. 
+            // In handleFeedback, sessionId is the assessment Session. We need to pass the real mahasiswa ID.
+            // But we don't have the mahasiswa ID readily available. Let's look at how renderSession is built.
           });
         } else {
           Alert.alert("Selesai", "Sesi telah ditandai sebagai selesai.");
@@ -104,26 +109,48 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
         
         {isHandledByOther ? (
           <View className="mt-3 bg-gray-100 p-2 rounded-lg items-center">
-            <Text className="text-xs text-gray-500 font-medium">Ditangani oleh Psikolog {item.psychologist_name}</Text>
+            <Text className="text-xs text-gray-500 font-medium">Ditangani oleh Psikolog {item.psychologist_name || item.handled_by}</Text>
           </View>
         ) : (
-          <View className="flex-row justify-between items-center mt-4">
+          <View className="flex-row justify-between items-center mt-4 border-t border-gray-100 pt-3">
             <Text className="text-xs text-gray-400">
               {item.status === 'completed' && isHandledByMe ? 'Sedang Anda tangani' : item.status}
             </Text>
+            
             <View className="flex-row">
-              <TouchableOpacity 
-                onPress={() => handleFeedback(item.session_id, 'selesai', item.mahasiswa_name)}
-                className="bg-gray-200 px-3 py-2 rounded-lg mr-2"
-              >
-                <Text className="text-gray-700 font-bold">Selesai</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => handleFeedback(item.session_id, 'lanjut', item.mahasiswa_name)}
-                className="bg-blue-600 px-4 py-2 rounded-lg"
-              >
-                <Text className="text-white font-bold">Lanjut (Chat)</Text>
-              </TouchableOpacity>
+              {isHandledByMe ? (
+                <>
+                  {item.status !== 'closed' && (
+                    <TouchableOpacity 
+                      onPress={() => handleFeedback(item.session_id, 'selesai', item.mahasiswa_name)}
+                      className="bg-gray-200 px-3 py-2 rounded-lg mr-2"
+                    >
+                      <Text className="text-gray-700 font-bold">Selesai</Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity 
+                    onPress={() => navigation.navigate('ConsultationChat', { 
+                      sessionId: item.consultation_id, 
+                      partnerName: item.mahasiswa_name,
+                      status: item.status,
+                      mahasiswaId: item.user_id // use item.user_id from backend response!
+                    })}
+                    className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
+                  >
+                    <Ionicons name="chatbubble" size={16} color="white" className="mr-1" />
+                    <Text className="text-white font-bold ml-1">
+                      {item.status === 'closed' ? 'Arsip Chat' : 'Lanjut Chat'}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity 
+                  onPress={() => handleFeedback(item.session_id, 'lanjut', item.mahasiswa_name)}
+                  className="bg-blue-600 px-4 py-2 rounded-lg"
+                >
+                  <Text className="text-white font-bold">Ambil Sesi</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         )}

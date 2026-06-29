@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const API_URL = 'https://griminess-unblended-enslave.ngrok-free.dev/api/register';
+const API_URL = 'https://nabilnih1302-mindscan-api.hf.space/api/register';
 
 export default function RegisterScreen({ navigation }: any) {
   const [name, setName] = useState('');
@@ -28,6 +28,7 @@ export default function RegisterScreen({ navigation }: any) {
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
+          'X-API-Key': 'mindscan_secret_key_2026',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 

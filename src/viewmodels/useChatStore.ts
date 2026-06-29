@@ -21,7 +21,7 @@ interface ChatState {
   resetSession: () => void;
 }
 
-const API_BASE = 'https://griminess-unblended-enslave.ngrok-free.dev/api';
+const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api';
 
 export const useChatStore = create<ChatState>((set, get) => ({
   sessionId: null,
