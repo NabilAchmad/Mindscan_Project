@@ -81,7 +81,7 @@ export default function RegisterScreen({ navigation }: any) {
               className="w-full bg-black-100 px-4 py-3 rounded-xl border border-gray-200"
               placeholder="Masukkan email Anda"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => setEmail(text.toLowerCase())}
               keyboardType="email-address"
               autoCapitalize="none"
             />
@@ -135,7 +135,7 @@ export default function RegisterScreen({ navigation }: any) {
             className={`w-full py-4 rounded-xl items-center mt-6 ${isLoading ? 'bg-blue-400' : 'bg-blue-600'}`}
           >
             {isLoading ? (
-              <ActivityIndicator color="white" />
+              <ActivityIndicator size="large" color="#ffffff" />
             ) : (
               <Text className="text-white font-bold text-lg">Daftar</Text>
             )}

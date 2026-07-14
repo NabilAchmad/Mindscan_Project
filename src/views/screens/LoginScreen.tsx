@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }: any) {
             className="w-full bg-black-100 px-4 py-3 rounded-xl border border-gray-200"
             placeholder="Masukkan email Anda"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => setEmail(text.toLowerCase())}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -81,9 +81,14 @@ export default function LoginScreen({ navigation }: any) {
 
         <TouchableOpacity
           onPress={handleLogin}
-          className="bg-blue-600 w-full py-4 rounded-xl items-center mt-6"
+          disabled={isLoading}
+          className={`w-full py-4 rounded-xl items-center mt-6 ${isLoading ? 'bg-blue-400' : 'bg-blue-600'}`}
         >
-          <Text className="text-white font-bold text-lg">Masuk</Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#ffffff" />
+          ) : (
+            <Text className="text-white font-bold text-lg">Masuk</Text>
+          )}
         </TouchableOpacity>
 
         <View className="flex-row justify-center mt-6">

@@ -21,11 +21,15 @@ export default function ChatbotScreen({ navigation }: any) {
   const [showPsychologistModal, setShowPsychologistModal] = useState(false);
   const [availablePsychologists, setAvailablePsychologists] = useState<any[]>([]);
   const [isFinding, setIsFinding] = useState(false);
+  
+  // State untuk Real-time Ekspresi Wajah
+  const [realtimeEmotion, setRealtimeEmotion] = useState<string>('');
 
   const user = useAuthStore((state) => state.user);
   const { messages, isTyping, sessionStatus, finalSentiment, startSession, sendMessageToBot, endSession, resetSession } = useChatStore();
 
   const cameraRef = React.useRef<CameraView>(null);
+  const cameraContainerRef = React.useRef<View>(null);
 
   useEffect(() => {
     (async () => {
@@ -40,21 +44,49 @@ export default function ChatbotScreen({ navigation }: any) {
     }
   }, [user?.id]);
 
-  // Hapus interval otomatis, pindahkan trigger kamera ke handleSend
+  // Interval otomatis dihapus karena mengambil foto secara native (takePictureAsync) setiap 4 detik
+  // akan membuat frame kamera terlihat patah-patah/lagging pada perangkat Android.
+  // Deteksi ekspresi (ke backend) sekarang hanya dilakukan secara presisi ketika tombol Send ditekan.
   
   const handleSend = async () => {
-    if (inputText.trim()) {
-      sendMessageToBot(inputText.trim());
-      setInputText('');
-      
-      // Ambil foto secara diam-diam hanya ketika pesan dikirim (mengurangi gangguan suara shutter)
-      if (hasPermission && sessionStatus === 'active' && cameraRef.current) {
-        try {
-          const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.3, shutterSound: false });
-          console.log("Captured face data on message send for CV");
-        } catch (e) {
-          console.error("Camera capture error", e);
-        }
+    if (!inputText.trim()) return;
+    const textToSend = inputText.trim();
+    setInputText('');
+    
+    // Mulai memproses chat (tidak memblokir proses kamera)
+    sendMessageToBot(textToSend);
+    
+    // Ambil foto untuk analisis presisi saat user membalas
+    if (hasPermission && sessionStatus === 'active' && cameraRef.current) {
+      try {
+        setRealtimeEmotion('Menganalisis...');
+        
+        cameraRef.current.takePictureAsync({ base64: true, quality: 0.3, shutterSound: false })
+          .then(async (photo) => {
+            if (!photo || !photo.base64) return;
+            
+            const response = await fetch(`${API_URL}/analyze-face`, {
+              method: 'POST',
+              headers: {
+                'X-API-Key': 'mindscan_secret_key_2026',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ base64_image: photo.base64 })
+            });
+            
+            const data = await response.json();
+            if (data.status === 'success' && data.emotion) {
+              setRealtimeEmotion(data.emotion);
+            } else {
+              setRealtimeEmotion('Wajah kurang jelas');
+            }
+          })
+          .catch(e => {
+            console.error("Camera capture error", e);
+            setRealtimeEmotion('Error kamera');
+          });
+      } catch (e) {
+        console.error("Camera setup error", e);
       }
     }
   };
@@ -128,10 +160,16 @@ export default function ChatbotScreen({ navigation }: any) {
         
         {/* Floating Camera Window (Picture-in-Picture) */}
         {sessionStatus === 'active' && hasPermission && (
-          <View className="absolute top-20 right-4 w-24 h-32 bg-gray-200 rounded-xl overflow-hidden border-2 border-white shadow-lg z-50">
+          <View 
+            ref={cameraContainerRef}
+            className="absolute top-20 right-4 w-28 h-40 bg-gray-200 rounded-xl overflow-hidden border-2 border-white shadow-lg z-50"
+            collapsable={false}
+          >
             <CameraView style={{ flex: 1 }} facing="front" ref={cameraRef} />
-            <View className="absolute bottom-1 right-1 bg-black/50 px-1 py-0.5 rounded">
-              <Text className="text-white text-[8px] font-bold">CV Active</Text>
+            <View className="absolute bottom-1 left-1 right-1 bg-black/60 px-1 py-1 rounded flex-row justify-center items-center">
+              <Text className="text-white text-[9px] font-bold text-center" numberOfLines={1}>
+                {realtimeEmotion ? `👁️ ${realtimeEmotion}` : '👁️ Mendeteksi...'}
+              </Text>
             </View>
           </View>
         )}

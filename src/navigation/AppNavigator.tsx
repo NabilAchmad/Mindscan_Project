@@ -11,6 +11,7 @@ import ChatbotScreen from '../views/screens/ChatbotScreen';
 import PsychologistDashboardScreen from '../views/screens/PsychologistDashboardScreen';
 import ConsultationChatScreen from '../views/screens/ConsultationChatScreen';
 import StudentConsultationListScreen from '../views/screens/StudentConsultationListScreen';
+import RealtimeExpressionScreen from '../views/screens/RealtimeExpressionScreen';
 import { useAuthStore } from '../viewmodels/useAuthStore';
 
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,7 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+            <Stack.Screen name="RealtimeExpression" component={RealtimeExpressionScreen} />
             <Stack.Screen name="StudentConsultationList" component={StudentConsultationListScreen} />
             <Stack.Screen name="ConsultationChat" component={ConsultationChatScreen} />
           </>

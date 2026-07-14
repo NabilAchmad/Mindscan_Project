@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 
 const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api'; 
@@ -130,10 +131,10 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
                   )}
                   <TouchableOpacity 
                     onPress={() => navigation.navigate('ConsultationChat', { 
-                      sessionId: item.consultation_id, 
+                      sessionId: item.session_id, 
                       partnerName: item.mahasiswa_name,
                       status: item.status,
-                      mahasiswaId: item.user_id // use item.user_id from backend response!
+                      mahasiswaId: item.mahasiswa_id
                     })}
                     className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
                   >

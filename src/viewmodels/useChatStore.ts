@@ -45,7 +45,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   startSession: async (userId: string | number) => {
     set({ isTyping: true, messages: [] });
     try {
-      const response = await axios.post(`${API_BASE}/chatbot/start`, { user_id: userId });
+      const response = await axios.post(`${API_BASE}/chatbot/start`, 
+        { user_id: userId },
+        { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } }
+      );
       const { session_id, bot_reply } = response.data;
       set({ sessionId: session_id });
       get().addMessage(bot_reply, 'bot');
@@ -67,10 +70,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isTyping: true });
 
     try {
-      const response = await axios.post(`${API_BASE}/analyze-text`, {
-        text: text,
-        session_id: sessionId
-      });
+      const response = await axios.post(`${API_BASE}/analyze-text`, 
+        {
+          text: text,
+          session_id: sessionId
+        },
+        { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } }
+      );
 
       const data = response.data;
       const botReply = data.bot_reply || 'Maaf, saya tidak mengerti.';
@@ -94,9 +100,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     set({ isTyping: true });
     try {
-      const response = await axios.post(`${API_BASE}/chatbot/end`, {
-        session_id: sessionId
-      });
+      const response = await axios.post(`${API_BASE}/chatbot/end`, 
+        { session_id: sessionId },
+        { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } }
+      );
       const data = response.data;
       if (data.status === 'success') {
         set({ sessionStatus: 'completed', finalSentiment: data.final_sentiment });

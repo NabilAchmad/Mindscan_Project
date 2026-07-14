@@ -81,6 +81,19 @@ export default function DashboardScreen({ navigation }: any) {
           </TouchableOpacity>
 
           <TouchableOpacity 
+            className="w-full bg-purple-600 rounded-2xl p-4 flex-row items-center justify-between shadow-sm mt-3"
+            onPress={() => navigation.navigate('RealtimeExpression')}
+          >
+            <View className="flex-1">
+              <Text className="text-white font-black text-xl mb-1">Live Scanner</Text>
+              <Text className="text-purple-200 text-sm">Uji kehebatan deteksi otot wajah secara instan</Text>
+            </View>
+            <View className="bg-white/20 p-3 rounded-full ml-4">
+              <Text className="text-2xl">📸</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
             className="w-full bg-white border border-blue-200 rounded-2xl p-4 flex-row items-center justify-between shadow-sm mt-3"
             onPress={() => navigation.navigate('StudentConsultationList')}
           >
