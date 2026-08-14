@@ -31,13 +31,16 @@ export default function RealtimeExpressionScreen({ navigation }: any) {
     })();
   }, []);
 
+  const isCapturing = useRef(false);
+
   // Interval otomatis setiap 800ms untuk Real-time Scanner
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: any;
 
     if (hasPermission && isScanning) {
       intervalId = setInterval(async () => {
-        if (cameraRef.current) {
+        if (cameraRef.current && !isCapturing.current) {
+          isCapturing.current = true;
           try {
             // Mengambil gambar secara background (silent & low quality)
             const photo = await cameraRef.current.takePictureAsync({ 
@@ -65,6 +68,8 @@ export default function RealtimeExpressionScreen({ navigation }: any) {
             }
           } catch (e) {
             console.error("Scanner Error:", e);
+          } finally {
+            isCapturing.current = false;
           }
         }
       }, 800); // 800ms cukup optimal agar tidak membuat HP panas (1 FPS+)

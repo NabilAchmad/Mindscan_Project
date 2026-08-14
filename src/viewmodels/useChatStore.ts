@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { useAuthStore } from './useAuthStore';
 
 export interface ChatMessage {
   id: string;
@@ -45,9 +46,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   startSession: async (userId: string | number) => {
     set({ isTyping: true, messages: [] });
     try {
+      const token = useAuthStore.getState().token;
       const response = await axios.post(`${API_BASE}/chatbot/start`, 
         { user_id: userId },
-        { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } }
+        { headers: { 'X-API-Key': 'mindscan_secret_key_2026', 'Authorization': `Bearer ${token}` } }
       );
       const { session_id, bot_reply } = response.data;
       set({ sessionId: session_id });
@@ -70,12 +72,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isTyping: true });
 
     try {
+      const token = useAuthStore.getState().token;
       const response = await axios.post(`${API_BASE}/analyze-text`, 
         {
           text: text,
           session_id: sessionId
         },
-        { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } }
+        { headers: { 'X-API-Key': 'mindscan_secret_key_2026', 'Authorization': `Bearer ${token}` } }
       );
 
       const data = response.data;
@@ -100,9 +103,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     set({ isTyping: true });
     try {
+      const token = useAuthStore.getState().token;
       const response = await axios.post(`${API_BASE}/chatbot/end`, 
         { session_id: sessionId },
-        { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } }
+        { headers: { 'X-API-Key': 'mindscan_secret_key_2026', 'Authorization': `Bearer ${token}` } }
       );
       const data = response.data;
       if (data.status === 'success') {

@@ -8,6 +8,7 @@ const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api';
 
 export default function DashboardScreen({ navigation }: any) {
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
   const isFocused = useIsFocused();
   
@@ -25,6 +26,7 @@ export default function DashboardScreen({ navigation }: any) {
       const response = await fetch(`${API_BASE}/student/history/${user.id}`, {
         headers: {
           'X-API-Key': 'mindscan_secret_key_2026',
+          'Authorization': `Bearer ${token}`,
           'ngrok-skip-browser-warning': 'true'
         }
       });

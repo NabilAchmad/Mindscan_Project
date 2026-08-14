@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, Modal, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, Modal, ScrollView, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 import { Ionicons } from '@expo/vector-icons';
+import { io, Socket } from 'socket.io-client';
 
 const API_URL = 'https://nabilnih1302-mindscan-api.hf.space/api/consultation'; 
 
@@ -16,16 +17,62 @@ export default function ConsultationChatScreen({ route, navigation }: any) {
   const [showAssessment, setShowAssessment] = useState(false);
   const [assessmentData, setAssessmentData] = useState<any>(null);
   const flatListRef = useRef<FlatList>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const token = useAuthStore((state) => state.token);
+
+  const [kbHeight, setKbHeight] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const showSub = Keyboard.addListener('keyboardDidShow', (e: any) => {
+        setKbHeight(e.endCoordinates.height);
+      });
+      const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+        setKbHeight(0);
+      });
+      return () => {
+        showSub.remove();
+        hideSub.remove();
+      };
+    }
+  }, []);
 
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 3000); // Polling every 3s
-    return () => clearInterval(interval);
+    
+    socketRef.current = io('https://nabilnih1302-mindscan-api.hf.space');
+    
+    socketRef.current.on('connect', () => {
+      socketRef.current?.emit('join_consultation', { session_id: sessionId });
+    });
+
+    socketRef.current.on('receive_message', (newMsg: any) => {
+      setMessages((prev) => {
+        // Prevent duplicate if it's our own optimistic message
+        const isOptimistic = prev.find(m => m.sender_id === newMsg.sender_id && m.text === newMsg.text && newMsg.id !== m.id && m.id > 1000000000000);
+        if (isOptimistic) {
+          return prev.map(m => m === isOptimistic ? newMsg : m);
+        }
+        // Avoid inserting if it already exists
+        if (prev.find(m => m.id === newMsg.id)) return prev;
+        return [...prev, newMsg];
+      });
+    });
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
   }, []);
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`${API_URL}/${sessionId}/messages`, { headers: { 'X-API-Key': 'mindscan_secret_key_2026', 'ngrok-skip-browser-warning': 'true' } });
+      const response = await fetch(`${API_URL}/${sessionId}/messages`, { 
+        headers: { 
+          'X-API-Key': 'mindscan_secret_key_2026', 
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true' 
+        } 
+      });
       const data = await response.json();
       if (data.status === 'success') {
         setMessages(data.data);
@@ -52,22 +99,11 @@ export default function ConsultationChatScreen({ route, navigation }: any) {
     };
     setMessages((prev) => [...prev, tempMsg]);
 
-    try {
-      await fetch(`${API_URL}/${sessionId}/messages`, {
-        method: 'POST',
-        headers: {
-          'X-API-Key': 'mindscan_secret_key_2026',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          sender_id: user.id,
-          text: textToSend
-        }),
-      });
-      // Background fetch akan memperbarui ID aslinya nanti
-    } catch (error) {
-      console.error(error);
-    }
+    socketRef.current?.emit('send_message', {
+      session_id: sessionId,
+      sender_id: user.id,
+      text: textToSend
+    });
   };
 
   const renderMessage = ({ item }: { item: any }) => {
@@ -90,7 +126,11 @@ export default function ConsultationChatScreen({ route, navigation }: any) {
     if (!mahasiswaId) return;
     try {
       const response = await fetch(`https://nabilnih1302-mindscan-api.hf.space/api/psychologist/student_assessment/${mahasiswaId}`, {
-        headers: { 'X-API-Key': 'mindscan_secret_key_2026', 'ngrok-skip-browser-warning': 'true' }
+        headers: { 
+          'X-API-Key': 'mindscan_secret_key_2026', 
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true' 
+        }
       });
       const data = await response.json();
       if (data.status === 'success') {
@@ -103,10 +143,11 @@ export default function ConsultationChatScreen({ route, navigation }: any) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
       <KeyboardAvoidingView 
         className="flex-1" 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'} 
+        style={{ paddingBottom: Platform.OS === 'android' ? kbHeight : 0 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         {/* Header */}

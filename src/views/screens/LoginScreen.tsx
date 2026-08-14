@@ -32,7 +32,7 @@ export default function LoginScreen({ navigation }: any) {
       const data = await response.json();
 
       if (response.ok && data.status === 'success') {
-        login(data.user);
+        login(data.user, data.token);
       } else {
         Alert.alert('Login Gagal', data.error || 'Terjadi kesalahan');
       }

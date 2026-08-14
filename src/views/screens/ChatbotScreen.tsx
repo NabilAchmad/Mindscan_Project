@@ -25,7 +25,25 @@ export default function ChatbotScreen({ navigation }: any) {
   // State untuk Real-time Ekspresi Wajah
   const [realtimeEmotion, setRealtimeEmotion] = useState<string>('');
 
+  const [kbHeight, setKbHeight] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
+        setKbHeight(e.endCoordinates.height);
+      });
+      const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+        setKbHeight(0);
+      });
+      return () => {
+        showSub.remove();
+        hideSub.remove();
+      };
+    }
+  }, []);
+
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   const { messages, isTyping, sessionStatus, finalSentiment, startSession, sendMessageToBot, endSession, resetSession } = useChatStore();
 
   const cameraRef = React.useRef<CameraView>(null);
@@ -61,7 +79,7 @@ export default function ChatbotScreen({ navigation }: any) {
       try {
         setRealtimeEmotion('Menganalisis...');
         
-        cameraRef.current.takePictureAsync({ base64: true, quality: 0.3, shutterSound: false })
+        cameraRef.current.takePictureAsync({ base64: true, quality: 0.1, shutterSound: false })
           .then(async (photo) => {
             if (!photo || !photo.base64) return;
             
@@ -69,6 +87,7 @@ export default function ChatbotScreen({ navigation }: any) {
               method: 'POST',
               headers: {
                 'X-API-Key': 'mindscan_secret_key_2026',
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({ base64_image: photo.base64 })
@@ -97,7 +116,12 @@ export default function ChatbotScreen({ navigation }: any) {
     setIsFinding(true);
     setShowPsychologistModal(true);
     try {
-      const response = await fetch(`${API_URL}/psychologists/available`, { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } });
+      const response = await fetch(`${API_URL}/psychologists/available`, { 
+        headers: { 
+          'X-API-Key': 'mindscan_secret_key_2026',
+          'Authorization': `Bearer ${token}` 
+        } 
+      });
       const data = await response.json();
       if (data.status === 'success') {
         setAvailablePsychologists(data.data);
@@ -116,7 +140,10 @@ export default function ChatbotScreen({ navigation }: any) {
       const response = await fetch(`${API_URL}/consultation/start`, {
         method: 'POST',
         headers: {
-          'X-API-Key': 'mindscan_secret_key_2026', 'Content-Type': 'application/json' },
+          'X-API-Key': 'mindscan_secret_key_2026', 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        },
         body: JSON.stringify({
           mahasiswa_id: user.id,
           psikolog_id: psikologId,
@@ -155,8 +182,8 @@ export default function ChatbotScreen({ navigation }: any) {
   if (hasPermission === false) return <View className="flex-1 justify-center items-center"><Text>Akses kamera ditolak.</Text></View>;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : 'padding'} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+      <KeyboardAvoidingView className="flex-1" style={{ paddingBottom: Platform.OS === 'android' ? kbHeight : 0 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
         
         {/* Floating Camera Window (Picture-in-Picture) */}
         {sessionStatus === 'active' && hasPermission && (

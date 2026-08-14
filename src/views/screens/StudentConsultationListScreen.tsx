@@ -9,6 +9,7 @@ const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api';
 
 export default function StudentConsultationListScreen({ navigation }: any) {
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   const isFocused = useIsFocused();
   
   const [consultations, setConsultations] = useState<any[]>([]);
@@ -20,7 +21,10 @@ export default function StudentConsultationListScreen({ navigation }: any) {
     try {
       const response = await fetch(`${API_BASE}/student/${user.id}/consultations`, {
         headers: {
-          'X-API-Key': 'mindscan_secret_key_2026', 'ngrok-skip-browser-warning': 'true' }
+          'X-API-Key': 'mindscan_secret_key_2026',
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true' 
+        }
       });
       const textResponse = await response.text();
       let data;

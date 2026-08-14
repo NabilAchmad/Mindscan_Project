@@ -8,6 +8,7 @@ const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api';
 
 export default function PsychologistDashboardScreen({ navigation }: any) {
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
   const [sessions, setSessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +25,12 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
   const fetchSessions = async () => {
     if (!user) return;
     try {
-      const response = await fetch(`${API_BASE}/psychologist/assessments`, { headers: { 'X-API-Key': 'mindscan_secret_key_2026' } });
+      const response = await fetch(`${API_BASE}/psychologist/assessments`, { 
+        headers: { 
+          'X-API-Key': 'mindscan_secret_key_2026',
+          'Authorization': `Bearer ${token}`
+        } 
+      });
       const data = await response.json();
       if (data.status === 'success') {
         setSessions(data.data || []);
@@ -41,7 +47,10 @@ export default function PsychologistDashboardScreen({ navigation }: any) {
       const response = await fetch(`${API_BASE}/psychologist/feedback`, {
         method: 'POST',
         headers: {
-          'X-API-Key': 'mindscan_secret_key_2026', 'Content-Type': 'application/json' },
+          'X-API-Key': 'mindscan_secret_key_2026', 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        },
         body: JSON.stringify({
           psychologist_id: user?.id,
           session_id: sessionId,
