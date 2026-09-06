@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../viewmodels/useAuthStore';
 import { useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInUp, FadeInDown, Layout } from 'react-native-reanimated';
 
 const API_BASE = 'https://nabilnih1302-mindscan-api.hf.space/api'; 
 
@@ -32,7 +33,6 @@ export default function StudentConsultationListScreen({ navigation }: any) {
           data = JSON.parse(textResponse);
       } catch(e) {
           console.error("Not a JSON response:", textResponse);
-          // Abaikan data jika bukan JSON (contoh: ngrok expired HTML)
           return;
       }
 
@@ -52,45 +52,57 @@ export default function StudentConsultationListScreen({ navigation }: any) {
     }
   }, [isFocused]);
 
-  const renderConsultation = ({ item }: { item: any }) => (
-    <TouchableOpacity 
-      onPress={() => navigation.navigate('ConsultationChat', { 
-        sessionId: item.consultation_id, 
-        partnerName: item.psikolog_name,
-        status: item.status
-      })}
-      className={`bg-white p-4 rounded-xl mb-4 border ${item.status === 'closed' ? 'border-gray-300 opacity-80' : 'border-gray-100'} shadow-sm flex-row items-center justify-between`}
-    >
-      <View>
-        <Text className="text-gray-500 text-xs font-medium mb-1">{item.start_time}</Text>
-        <Text className="text-lg font-bold text-gray-800">Dr. {item.psikolog_name}</Text>
-        <Text className={`text-sm font-medium mt-1 ${item.status === 'closed' ? 'text-gray-500' : 'text-blue-600'}`}>
-          {item.status === 'closed' ? 'Sesi Selesai (Arsip)' : 'Konsultasi Aktif'}
-        </Text>
-      </View>
-      <View className={`${item.status === 'closed' ? 'bg-gray-100' : 'bg-blue-50'} p-3 rounded-full`}>
-        <Text className={`${item.status === 'closed' ? 'text-gray-500' : 'text-blue-600'} text-lg`}>💬</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderConsultation = ({ item, index }: { item: any, index: number }) => {
+    const isClosed = item.status === 'closed';
+    return (
+      <Animated.View layout={Layout.springify()} entering={FadeInUp.delay(index * 100).duration(600).springify()}>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('ConsultationChat', { 
+            sessionId: item.consultation_id, 
+            partnerName: item.psikolog_name,
+            status: item.status
+          })}
+          activeOpacity={0.7}
+          className={`bg-white p-5 rounded-[24px] mb-4 border ${isClosed ? 'border-slate-200 opacity-80' : 'border-teal-100 shadow-lg shadow-teal-900/5'} flex-row items-center justify-between`}
+        >
+          <View className="flex-1 pr-4">
+            <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">{item.start_time}</Text>
+            <Text className={`text-lg font-black ${isClosed ? 'text-slate-600' : 'text-slate-800'}`}>Dr. {item.psikolog_name}</Text>
+            <View className="flex-row items-center mt-2">
+              <View className={`w-2 h-2 rounded-full mr-2 ${isClosed ? 'bg-slate-300' : 'bg-teal-500'}`} />
+              <Text className={`text-xs font-bold uppercase tracking-wide ${isClosed ? 'text-slate-500' : 'text-teal-600'}`}>
+                {isClosed ? 'Sesi Selesai (Arsip)' : 'Konsultasi Aktif'}
+              </Text>
+            </View>
+          </View>
+          <View className={`${isClosed ? 'bg-slate-50' : 'bg-teal-50'} w-12 h-12 rounded-full items-center justify-center`}>
+            <Ionicons name="chatbubble-ellipses" size={24} color={isClosed ? '#94a3b8' : '#0D9488'} />
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="bg-white px-6 py-4 shadow-sm flex-row items-center border-b border-gray-100 z-10">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4">
-          <Ionicons name="arrow-back" size={28} color="#4B5563" />
+    <SafeAreaView className="flex-1 bg-slate-50">
+      <Animated.View entering={FadeInDown.duration(600)} className="bg-white/80 backdrop-blur-xl px-6 py-5 shadow-sm flex-row items-center border-b border-slate-100 z-10">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4 p-2 rounded-full bg-slate-50">
+          <Ionicons name="arrow-back" size={24} color="#334155" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-800">Riwayat Chat Psikolog</Text>
-      </View>
+        <Text className="text-xl font-black text-slate-800 tracking-tight">Riwayat Chat Psikolog</Text>
+      </Animated.View>
       
       <View className="flex-1 px-6 pt-6">
         {isLoading ? (
-          <ActivityIndicator size="large" color="#2563EB" className="mt-10" />
+          <ActivityIndicator size="large" color="#0D9488" className="mt-10" />
         ) : consultations.length === 0 ? (
-          <View className="mt-20 items-center">
-            <Text className="text-4xl mb-4">💬</Text>
-            <Text className="text-gray-500 text-center text-base">Belum ada obrolan aktif dengan psikolog.</Text>
-          </View>
+          <Animated.View entering={FadeInUp.duration(600)} className="mt-20 items-center bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+            <View className="w-16 h-16 bg-teal-50 rounded-full items-center justify-center mb-4">
+              <Ionicons name="chatbubbles-outline" size={32} color="#0D9488" />
+            </View>
+            <Text className="text-slate-800 text-lg font-bold mb-2">Belum ada obrolan</Text>
+            <Text className="text-slate-500 text-center text-sm leading-6">Riwayat konsultasi dengan psikolog akan muncul di sini.</Text>
+          </Animated.View>
         ) : (
           <FlatList
             data={consultations}

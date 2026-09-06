@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const API_URL = 'https://nabilnih1302-mindscan-api.hf.space/api/register';
 
@@ -57,98 +59,117 @@ export default function RegisterScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 40, flexGrow: 1, justifyContent: 'center' }}>
-        <View className="mb-10">
-          <Text className="text-3xl font-bold text-gray-800 mb-2">Buat Akun</Text>
-          <Text className="text-gray-500">Mulai perjalanan kesehatan mental Anda</Text>
-        </View>
-
-        <View className="space-y-4">
-          <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Nama Lengkap</Text>
-            <TextInput
-              className="w-full bg-black-100 px-4 py-3 rounded-xl border border-gray-200"
-              placeholder="Masukkan nama lengkap"
-              value={name}
-              onChangeText={setName}
-            />
-          </View>
-
-          <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Email</Text>
-            <TextInput
-              className="w-full bg-black-100 px-4 py-3 rounded-xl border border-gray-200"
-              placeholder="Masukkan email Anda"
-              value={email}
-              onChangeText={(text) => setEmail(text.toLowerCase())}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-
-          <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Kata Sandi</Text>
-            <TextInput
-              className="w-full bg-black-100 px-4 py-3 rounded-xl border border-gray-200"
-              placeholder="Buat kata sandi"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <View className="mt-4">
-            <Text className="text-sm font-medium text-gray-700 mb-2">Daftar Sebagai</Text>
-            <View className="flex-row gap-3">
-              <TouchableOpacity 
-                onPress={() => setRole('mahasiswa')}
-                className={`flex-1 py-3 rounded-xl border ${role === 'mahasiswa' ? 'bg-blue-50 border-blue-600' : 'bg-gray-50 border-gray-200'}`}
-              >
-                <Text className={`text-center font-medium ${role === 'mahasiswa' ? 'text-blue-700' : 'text-gray-600'}`}>Mahasiswa</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                onPress={() => setRole('psikolog')}
-                className={`flex-1 py-3 rounded-xl border ${role === 'psikolog' ? 'bg-blue-50 border-blue-600' : 'bg-gray-50 border-gray-200'}`}
-              >
-                <Text className={`text-center font-medium ${role === 'psikolog' ? 'text-blue-700' : 'text-gray-600'}`}>Psikolog</Text>
-              </TouchableOpacity>
+    <View className="flex-1 bg-slate-50">
+      <SafeAreaView className="flex-1">
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20, flexGrow: 1, justifyContent: 'center' }}>
+          
+          <Animated.View entering={FadeInDown.duration(800).springify()} className="mb-8">
+            <View className="w-16 h-16 bg-teal-100 rounded-3xl items-center justify-center mb-4 transform -rotate-3">
+              <Text className="text-3xl">✨</Text>
             </View>
-          </View>
+            <Text className="text-4xl font-black text-slate-800 mb-2 tracking-tight">Buat Akun</Text>
+            <Text className="text-base text-slate-500 font-medium">Mulai perjalanan kesehatan mental Anda</Text>
+          </Animated.View>
 
-          {role === 'psikolog' && (
-            <View className="mt-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Nomor SIPP (Surat Izin Praktik Psikologi)</Text>
+          <Animated.View entering={FadeInDown.delay(200).duration(800).springify()} className="space-y-4">
+            
+            <View>
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</Text>
               <TextInput
-                className="w-full bg-black-100 px-4 py-3 rounded-xl border border-gray-200"
-                placeholder="Masukkan Nomor SIPP Anda"
-                value={licenseNumber}
-                onChangeText={setLicenseNumber}
+                className="w-full bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
+                placeholder="Masukkan nama lengkap"
+                placeholderTextColor="#94a3b8"
+                value={name}
+                onChangeText={setName}
               />
             </View>
-          )}
 
-          <TouchableOpacity
-            onPress={handleRegister}
-            disabled={isLoading}
-            className={`w-full py-4 rounded-xl items-center mt-6 ${isLoading ? 'bg-blue-400' : 'bg-blue-600'}`}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="large" color="#ffffff" />
-            ) : (
-              <Text className="text-white font-bold text-lg">Daftar</Text>
+            <View>
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Email</Text>
+              <TextInput
+                className="w-full bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
+                placeholder="Masukkan email Anda"
+                placeholderTextColor="#94a3b8"
+                value={email}
+                onChangeText={(text) => setEmail(text.toLowerCase())}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View>
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Kata Sandi</Text>
+              <TextInput
+                className="w-full bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
+                placeholder="Buat kata sandi"
+                placeholderTextColor="#94a3b8"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+            </View>
+
+            <View className="mt-2">
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Daftar Sebagai</Text>
+              <View className="flex-row gap-3">
+                <TouchableOpacity 
+                  onPress={() => setRole('mahasiswa')}
+                  className={`flex-1 py-4 rounded-2xl border shadow-sm ${role === 'mahasiswa' ? 'bg-teal-50 border-teal-500' : 'bg-white border-slate-100'}`}
+                >
+                  <Text className={`text-center font-bold ${role === 'mahasiswa' ? 'text-teal-700' : 'text-slate-500'}`}>Mahasiswa</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  onPress={() => setRole('psikolog')}
+                  className={`flex-1 py-4 rounded-2xl border shadow-sm ${role === 'psikolog' ? 'bg-teal-50 border-teal-500' : 'bg-white border-slate-100'}`}
+                >
+                  <Text className={`text-center font-bold ${role === 'psikolog' ? 'text-teal-700' : 'text-slate-500'}`}>Psikolog</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {role === 'psikolog' && (
+              <Animated.View entering={FadeInDown.duration(400)} className="mt-2">
+                <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Nomor SIPP</Text>
+                <TextInput
+                  className="w-full bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
+                  placeholder="Surat Izin Praktik Psikologi"
+                  placeholderTextColor="#94a3b8"
+                  value={licenseNumber}
+                  onChangeText={setLicenseNumber}
+                />
+              </Animated.View>
             )}
-          </TouchableOpacity>
 
-          <View className="flex-row justify-center mt-6">
-            <Text className="text-gray-600">Sudah punya akun? </Text>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text className="text-blue-600 font-bold">Masuk</Text>
+            <TouchableOpacity
+              onPress={handleRegister}
+              disabled={isLoading}
+              className="w-full shadow-lg shadow-teal-600/30 rounded-2xl overflow-hidden mt-6"
+            >
+              <LinearGradient 
+                colors={isLoading ? ['#99F6E4', '#5EEAD4'] : ['#0F766E', '#0D9488']} 
+                start={{ x: 0, y: 0 }} 
+                end={{ x: 1, y: 0 }}
+                className="py-4 items-center justify-center"
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text className="text-white font-black text-lg tracking-wide">Daftar Sekarang</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            <View className="flex-row justify-center mt-6">
+              <Text className="text-slate-500 font-medium">Sudah punya akun? </Text>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Text className="text-teal-600 font-bold">Masuk di sini</Text>
+              </TouchableOpacity>
+            </View>
+
+          </Animated.View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }

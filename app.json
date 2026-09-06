@@ -34,7 +34,8 @@
           "cameraPermission": "MindScan membutuhkan akses kamera untuk mendeteksi ekspresi wajah Anda secara lokal."
         }
       ],
-      "react-native-fast-tflite"
+      "react-native-fast-tflite",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {
