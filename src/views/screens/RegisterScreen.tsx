@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -45,8 +45,8 @@ export default function RegisterScreen({ navigation }: any) {
       const data = await response.json();
 
       if (response.ok && data.status === 'success') {
-        Alert.alert('Berhasil', 'Pendaftaran berhasil. Silakan masuk.');
-        navigation.goBack();
+        Alert.alert('Berhasil', 'Pendaftaran berhasil. Silakan cek email Anda untuk OTP.');
+        navigation.navigate('VerifyEmail', { email: email });
       } else {
         Alert.alert('Gagal', data.error || 'Pendaftaran gagal');
       }
@@ -59,7 +59,10 @@ export default function RegisterScreen({ navigation }: any) {
   };
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <KeyboardAvoidingView 
+      className="flex-1 bg-slate-50"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <SafeAreaView className="flex-1">
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20, flexGrow: 1, justifyContent: 'center' }}>
           
@@ -170,6 +173,6 @@ export default function RegisterScreen({ navigation }: any) {
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

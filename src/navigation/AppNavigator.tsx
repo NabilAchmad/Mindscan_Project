@@ -6,6 +6,7 @@ import SplashScreen from '../views/screens/SplashScreen';
 import OnboardingScreen from '../views/screens/OnboardingScreen';
 import LoginScreen from '../views/screens/LoginScreen';
 import RegisterScreen from '../views/screens/RegisterScreen';
+import VerifyEmailScreen from '../views/screens/VerifyEmailScreen';
 import DashboardScreen from '../views/screens/DashboardScreen';
 import ChatbotScreen from '../views/screens/ChatbotScreen';
 import PsychologistDashboardScreen from '../views/screens/PsychologistDashboardScreen';
@@ -30,6 +31,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
           </>
         ) : user?.role === 'psikolog' ? (
           // Psychologist Stack
