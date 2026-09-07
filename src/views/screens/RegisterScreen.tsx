@@ -137,9 +137,9 @@ export default function RegisterScreen({ navigation }: any) {
 
             <View>
               <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Kata Sandi</Text>
-              <View className="relative justify-center">
+              <View className="flex-row items-center w-full bg-white px-5 rounded-2xl border border-slate-100 shadow-sm">
                 <TextInput
-                  className="w-full bg-white px-5 py-4 pr-12 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
+                  className="flex-1 py-4 text-slate-800 font-medium"
                   placeholder="Buat kata sandi"
                   placeholderTextColor="#94a3b8"
                   value={password}
@@ -147,7 +147,7 @@ export default function RegisterScreen({ navigation }: any) {
                   secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity 
-                  className="absolute right-4" 
+                  className="ml-2 py-4" 
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={24} color="#94a3b8" />
