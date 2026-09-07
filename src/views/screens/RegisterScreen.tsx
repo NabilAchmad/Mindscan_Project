@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import CustomAlert from '../../components/CustomAlert';
 
 const API_URL = 'https://nabilnih1302-mindscan-api.hf.space/api/register';
 
@@ -10,18 +13,32 @@ export default function RegisterScreen({ navigation }: any) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<'mahasiswa' | 'psikolog'>('mahasiswa');
   const [licenseNumber, setLicenseNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info' as 'success'|'error'|'info', action: () => {} });
 
   const handleRegister = async () => {
     if (!name || !email || !password) {
-      Alert.alert('Error', 'Semua kolom wajib diisi');
+      setAlertConfig({
+        visible: true,
+        title: 'Error',
+        message: 'Semua kolom wajib diisi',
+        type: 'error',
+        action: () => {}
+      });
       return;
     }
 
     if (role === 'psikolog' && !licenseNumber) {
-      Alert.alert('Error', 'Nomor SIPP wajib diisi untuk Psikolog');
+      setAlertConfig({
+        visible: true,
+        title: 'Error',
+        message: 'Nomor SIPP wajib diisi untuk Psikolog',
+        type: 'error',
+        action: () => {}
+      });
       return;
     }
 
@@ -45,26 +62,44 @@ export default function RegisterScreen({ navigation }: any) {
       const data = await response.json();
 
       if (response.ok && data.status === 'success') {
-        Alert.alert('Berhasil', 'Pendaftaran berhasil. Silakan cek email Anda untuk OTP.');
-        navigation.navigate('VerifyEmail', { email: email });
+        setAlertConfig({
+          visible: true,
+          title: 'Berhasil',
+          message: 'Pendaftaran berhasil. Silakan cek email Anda untuk OTP.',
+          type: 'success',
+          action: () => navigation.navigate('VerifyEmail', { email: email })
+        });
       } else {
-        Alert.alert('Gagal', data.error || 'Pendaftaran gagal');
+        setAlertConfig({
+          visible: true,
+          title: 'Gagal',
+          message: data.error || 'Pendaftaran gagal',
+          type: 'error',
+          action: () => {}
+        });
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Gagal terhubung ke server');
+      setAlertConfig({
+        visible: true,
+        title: 'Error',
+        message: 'Gagal terhubung ke server',
+        type: 'error',
+        action: () => {}
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView 
-      className="flex-1 bg-slate-50"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <SafeAreaView className="flex-1">
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20, flexGrow: 1, justifyContent: 'center' }}>
+    <SafeAreaView className="flex-1 bg-slate-50">
+      <KeyboardAwareScrollView 
+        contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20, flexGrow: 1, justifyContent: 'center' }}
+        enableOnAndroid={true}
+        keyboardShouldPersistTaps="handled"
+        extraScrollHeight={20}
+      >
           
           <Animated.View entering={FadeInDown.duration(800).springify()} className="mb-8">
             <View className="w-16 h-16 bg-teal-100 rounded-3xl items-center justify-center mb-4 transform -rotate-3">
@@ -102,14 +137,22 @@ export default function RegisterScreen({ navigation }: any) {
 
             <View>
               <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Kata Sandi</Text>
-              <TextInput
-                className="w-full bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
-                placeholder="Buat kata sandi"
-                placeholderTextColor="#94a3b8"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
+              <View className="relative justify-center">
+                <TextInput
+                  className="w-full bg-white px-5 py-4 pr-12 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-medium"
+                  placeholder="Buat kata sandi"
+                  placeholderTextColor="#94a3b8"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity 
+                  className="absolute right-4" 
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={24} color="#94a3b8" />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View className="mt-2">
@@ -171,8 +214,17 @@ export default function RegisterScreen({ navigation }: any) {
             </View>
 
           </Animated.View>
-        </ScrollView>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
+      <CustomAlert 
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => {
+          setAlertConfig(prev => ({ ...prev, visible: false }));
+          alertConfig.action();
+        }}
+      />
+    </SafeAreaView>
   );
 }
