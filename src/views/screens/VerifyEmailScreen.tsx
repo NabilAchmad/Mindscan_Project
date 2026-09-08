@@ -141,63 +141,63 @@ export default function VerifyEmailScreen({ route, navigation }: any) {
         extraScrollHeight={20}
       >
         <Animated.View entering={FadeInDown.duration(800).springify()} className="mb-10 items-center">
-          <View className="w-20 h-20 bg-teal-100 rounded-full items-center justify-center mb-6">
-            <Text className="text-4xl">✉️</Text>
+          <View className="w-24 h-24 bg-white rounded-full items-center justify-center mb-6 shadow-sm border border-slate-50">
+            <View className="w-16 h-16 bg-teal-50 rounded-full items-center justify-center">
+              <Ionicons name="mail-unread-outline" size={32} color="#0D9488" />
+            </View>
           </View>
-          <Text className="text-3xl font-black text-slate-800 mb-2 text-center tracking-tight">Verifikasi Email</Text>
-          <Text className="text-base text-slate-500 font-medium text-center">
-            Kami telah mengirimkan 6-digit kode OTP ke email <Text className="font-bold text-slate-700">{email}</Text>.
+          <Text className="text-3xl font-bold text-slate-800 mb-3 text-center tracking-tight">Verifikasi Email</Text>
+          <Text className="text-sm text-slate-500 font-medium text-center leading-relaxed px-4">
+            Kami telah mengirimkan 6-digit kode OTP ke email <Text className="font-bold text-slate-800">{email}</Text>. Silakan periksa kotak masuk atau folder spam Anda.
           </Text>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(200).duration(800).springify()} className="space-y-6">
           <View>
-            <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1 text-center">Kode OTP</Text>
             <TextInput
-              className="w-full bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm text-slate-800 font-black text-center text-2xl tracking-widest"
-              placeholder="000000"
-              placeholderTextColor="#cbd5e1"
+              className="w-full bg-white px-5 py-5 rounded-2xl border border-slate-200 text-slate-800 font-bold text-center text-3xl tracking-[10px]"
+              placeholder="••••••"
+              placeholderTextColor="#e2e8f0"
               value={otp}
               onChangeText={setOtp}
               keyboardType="number-pad"
               maxLength={6}
+              style={{ letterSpacing: 12 }}
             />
           </View>
 
           <TouchableOpacity
             onPress={handleVerify}
             disabled={isLoading}
-            className="w-full shadow-lg shadow-teal-600/30 rounded-2xl overflow-hidden mt-4"
+            className="w-full mt-2"
           >
-            <LinearGradient
-              colors={isLoading ? ['#99F6E4', '#5EEAD4'] : ['#0F766E', '#0D9488']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              className="py-4 items-center justify-center"
+            <View
+              className={`py-4 items-center justify-center rounded-2xl ${isLoading ? 'bg-teal-300' : 'bg-teal-600'}`}
+              style={{ shadowColor: '#0D9488', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }}
             >
               {isLoading ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
-                <Text className="text-white font-black text-lg tracking-wide">Verifikasi Akun</Text>
+                <Text className="text-white font-bold text-base tracking-wide">Verifikasi Akun</Text>
               )}
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
-          <View className="flex-row justify-center mt-6 items-center flex-col space-y-4">
+          <View className="flex-col justify-center mt-6 items-center space-y-4">
             {countdown > 0 ? (
-              <Text className="text-slate-500 font-medium">
-                Kirim ulang kode dalam <Text className="font-bold text-teal-600">{countdown} detik</Text>
+              <Text className="text-sm text-slate-400 font-medium">
+                Kirim ulang kode dalam <Text className="font-bold text-teal-600">{countdown}s</Text>
               </Text>
             ) : (
               <TouchableOpacity onPress={handleResend} disabled={isResending}>
-                <Text className="text-teal-600 font-bold text-base">
+                <Text className="text-teal-600 font-bold text-sm">
                   {isResending ? 'Mengirim ulang...' : 'Kirim Ulang Kode OTP'}
                 </Text>
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity onPress={() => navigation.navigate('Login')} className="mt-4">
-              <Text className="text-slate-500 font-bold">Kembali ke Login</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} className="mt-2 py-2">
+              <Text className="text-slate-400 font-medium text-sm">Kembali ke halaman <Text className="font-bold text-slate-600">Login</Text></Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
